@@ -1,9 +1,10 @@
-# encoding=utf-8
-# coding=utf-8
+# encoding=gbk
 import re
 import random
 import requests
 from fake_useragent import UserAgent
+import concurrent.futures as cf
+from os_lf import *
 
 
 def proxy_list():
@@ -37,7 +38,7 @@ def net_get(url,f,use_proxy = True):
     try:
         r_headers = {"user-agent": UserAgent().random}
         r_proxy = random.choice(p_list) if use_proxy == True else {}
-        r = requests.get(url,headers = r_headers, proxies = r_proxy )
+        r = requests.get(url,headers = r_headers, proxies = r_proxy, timeout = 10, )
 
     except Exception as e:
             print("while handling " + url)
@@ -55,6 +56,24 @@ def net_group(url,reg):
             t = r.text
             return re.findall(reg,t)
     return net_get(url,group,False)
+
+    
+def net_content(url,use_proxy = True):
+    def content(r):
+        return r.content
+    return  net_get(url,content,use_proxy)
+
+def net_download(url,name,save_path = os.curdir,use_proxy = True):
+    data = net_content(url,use_proxy)
+    if len(data)>0:
+        save_data(name,data,save_path)
+    else:
+        print(name,"can not saved")
+
+def net_list_handler(lst,func,args = (),workers = 5,use_proxy = True):
+    ext = cf.ThreadPoolExecutor(max_workers = workers)
+    l = [ext.submit(func,i,args) for i in lst]
+    return cf.as_completed(l)
 
 p_list = proxy_list() + proxy_list() + proxy_list()
 
