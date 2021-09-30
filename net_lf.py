@@ -81,4 +81,4 @@ p_list = proxy_list() + proxy_list() + proxy_list()
 if __name__ == "__main__":
     p = proxy_list()
     print(p)
-    print("了解")
+    print("# encoding=gbk 才能写中文")
