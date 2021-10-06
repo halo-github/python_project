@@ -5,13 +5,16 @@ import time
 import concurrent.futures as cf
 import os
 import threading
+from queue_lf import thread_pool
 
 video_dir = "E:/xiaok" 
 v1 = "https://www.zhihu.com/api/v4/members/huo-huo-95-32/zvideos?offset=0&limit=20&similar_aggregation=true&include=similar_zvideo"
 def page(r):
     dic = r.json()
     l = dic["data"]
-    l1 = [{"t":d["title"],"f":d["video"]["playlist"]["hd"]["format"],"v":d["video"]["playlist"]["hd"]["play_url"]} for d in l]
+    l1 = [(d["title"],d["video"]["playlist"]["hd"]["format"],d["video"]["playlist"]["hd"]["play_url"])  for d in l]
+
+   # l1 = [{"t":d["title"],"f":d["video"]["playlist"]["hd"]["format"],"v":d["video"]["playlist"]["hd"]["play_url"]} for d in l]
     return (l1,dic["paging"])
 
 def video_list(url,is_end = False):
@@ -31,7 +34,8 @@ def content(r):
 
 
 
-def save_video(title, formt, url):
+def save_video(tp,a):
+    (title,formt,url) = tp
     name = title + "." + formt
     if os.path.exists(name):
         print(name + " exist")
@@ -53,11 +57,5 @@ def downloader(lst):
 if __name__ == "__main__":
     t1 = time.time()
     l = video_list(v1,False)
+    #thread_pool(l,save_video,workers = 8)
     print(len(l))
-    t2 = time.time()
-    print(t2 - t1)
-    downloader(l)
-    t3 = time.time()
-    print(t3 - t2)
-
-

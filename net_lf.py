@@ -3,7 +3,6 @@ import re
 import random
 import requests
 from fake_useragent import UserAgent
-import concurrent.futures as cf
 from os_lf import *
 
 
@@ -71,9 +70,7 @@ def net_download(url,name,save_path = os.curdir,use_proxy = True):
         print(name,"can not saved")
 
 def net_list_handler(lst,func,args = (),workers = 5,use_proxy = True):
-    ext = cf.ThreadPoolExecutor(max_workers = workers)
-    l = [ext.submit(func,i,args) for i in lst]
-    return cf.as_completed(l)
+    return
 
 p_list = proxy_list() + proxy_list() + proxy_list()
 
