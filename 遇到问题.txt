@@ -1,0 +1,11 @@
+pip install 时候遇到报错  
+
+ValueError: check_hostname requires server_hostname
+
+可以试试
+
+pip install  ****(要安装的包)   -i http://pypi.douban.com/simple --trusted-host pypi.douban.com
+参数i表示指定源
+————————————————
+版权声明：本文为CSDN博主「sunnydream1112」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/sunnydream1112/article/details/117985435

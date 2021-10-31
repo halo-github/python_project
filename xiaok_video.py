@@ -42,7 +42,6 @@ def save_video(tp,a):
         return
     data = net_get(url,content,True)
     save_data(name,data,video_dir)
-    print("saved " + video_dir + "/" + name + " in thread: " + str(threading.current_thread()) )
     
 def downloader(lst):
         ext = cf.ThreadPoolExecutor(max_workers = 8)
@@ -57,5 +56,5 @@ def downloader(lst):
 if __name__ == "__main__":
     t1 = time.time()
     l = video_list(v1,False)
-    #thread_pool(l,save_video,workers = 8)
     print(len(l))
+    thread_pool(l,save_video,workers = 8)

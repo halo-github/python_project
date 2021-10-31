@@ -35,10 +35,15 @@ def proxy_list():
 
 def net_get(url,f,use_proxy = True):
     try:
+        s = requests.Session()
+        s.keep_alive = False
         r_headers = {"user-agent": UserAgent().random}
         r_proxy = random.choice(p_list) if use_proxy == True else {}
-        r = requests.get(url,headers = r_headers, proxies = r_proxy, timeout = 10, )
-
+        r = requests.get(url,headers = r_headers, proxies = r_proxy, timeout = 5,)
+        #print(r_proxy)
+    #可能出现HTTPConnectionPool，但不影响，可以pass
+    #except HTTPConnectionPool    :
+    #    print("123")        
     except Exception as e:
             print("while handling " + url)
             print(e)
