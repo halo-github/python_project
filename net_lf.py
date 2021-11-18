@@ -31,7 +31,9 @@ def proxy_list():
     return proxies	
 
 
-
+def redirect_url(url):
+    rsp =  requests.get(url)
+    return rsp.url
 
 def net_get(url,f,use_proxy = True):
     try:

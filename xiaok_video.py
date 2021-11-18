@@ -12,7 +12,7 @@ v1 = "https://www.zhihu.com/api/v4/members/huo-huo-95-32/zvideos?offset=0&limit=
 def page(r):
     dic = r.json()
     l = dic["data"]
-    l1 = [(d["title"],d["video"]["playlist"]["hd"]["format"],d["video"]["playlist"]["hd"]["play_url"])  for d in l]
+    l1 = [(d["published_at"],d["title"],d["video"]["playlist"]["hd"]["format"],d["video"]["playlist"]["hd"]["play_url"])  for d in l]
 
    # l1 = [{"t":d["title"],"f":d["video"]["playlist"]["hd"]["format"],"v":d["video"]["playlist"]["hd"]["play_url"]} for d in l]
     return (l1,dic["paging"])
@@ -20,7 +20,7 @@ def page(r):
 def video_list(url,is_end = False):
     v_list = []
     while is_end == False:
-        (l,pg) = net_get(url,page,True)
+        (l,pg) = net_get(url,page,1)
         v_list+=l
         is_end = pg["is_end"]
         url = pg["next"]
@@ -35,19 +35,17 @@ def content(r):
 
 
 def save_video(tp,a):
-    (title,formt,url) = tp
+    (published_at,title,formt,url) = tp
     name = title + "." + formt
-    if os.path.exists(name):
-        print(name + " exist")
-        return
-    data = net_get(url,content,True)
-    save_data(name,data,video_dir)
-    
-def downloader(lst):
-        ext = cf.ThreadPoolExecutor(max_workers = 8)
-        l = [ext.submit(save_video,d["t"],d["f"],d["v"]) for d in lst]
-        for f in cf.as_completed(l):
-            print(f.result())
+    new_name =str(published_at) + "_" +name
+    #return
+    if os.path.exists(new_name):
+        print(new_name + " exist")
+    else:
+        print(new_name,threading.current_thread())
+        data = net_get(url,content,True)
+        save_data(new_name,data,video_dir)
+     
 
 
 
@@ -56,5 +54,6 @@ def downloader(lst):
 if __name__ == "__main__":
     t1 = time.time()
     l = video_list(v1,False)
-    print(len(l))
+    #for i in l:
+    #    print(i[0])
     thread_pool(l,save_video,workers = 8)
