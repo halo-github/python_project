@@ -13,8 +13,6 @@ def page(r):
     dic = r.json()
     l = dic["data"]
     l1 = [(d["published_at"],d["title"],d["video"]["playlist"]["hd"]["format"],d["video"]["playlist"]["hd"]["play_url"])  for d in l]
-
-   # l1 = [{"t":d["title"],"f":d["video"]["playlist"]["hd"]["format"],"v":d["video"]["playlist"]["hd"]["play_url"]} for d in l]
     return (l1,dic["paging"])
 
 def video_list(url,is_end = False):
@@ -39,13 +37,12 @@ def save_video(tp,a):
     name = title + "." + formt
     new_name =str(published_at) + "_" +name
     #return
-    if os.path.exists(new_name):
-        print(new_name + " exist")
-    else:
+    if not os.path.exists(new_name):
         print(new_name,threading.current_thread())
         data = net_get(url,content,True)
-        save_data(new_name,data,video_dir)
-     
+        save_data(new_name,data,video_dir) 
+    else:
+        print(new_name + " exist")
 
 
 

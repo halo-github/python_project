@@ -8,7 +8,7 @@ def goto_dir(dir_name):
         os.chdir(dir_name)
 
 def save_data(name,data,d = os.curdir):
-    p = d+name
+    p = d+"/"+name
     goto_dir(d)
     if os.path.exists(name):
         print( p, "exists")
