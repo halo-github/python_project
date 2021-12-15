@@ -27,7 +27,7 @@ def proxy_list():
     	for key in keys:
     		dic[key] = str(i[0])+":"+str(i[1])
     	proxies.append(dic)
-    #print(proxies)
+    #print(proxies)https://x2.ifengimg.com/fe/shank/list
     return proxies	
 
 

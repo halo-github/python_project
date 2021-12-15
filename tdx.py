@@ -12,26 +12,28 @@ f1 = 'D:\Program Files (x86)\hwx\\vipdoc\sh\lday\sh000043.day'
 to_str = lambda x:str(x)
 
 def dayfile_to_xlsx(f,a):
-    empty_list = []
-    a = 0
+    #读取day文件
     file = open(f,'rb')
     b = file.read()
     file.close()
     #print(b)
+    #下面是解析过程
+    empty_list = []
+    a = 0
     l = len(b)/32
     for i in range(0,int(l)):
         data = struct.unpack('IIIIIfII',b[a:a+32])
         #print(data[4]/100)
         data1 =[data[0],data[1]/100,data[2]/100,data[3]/100,data[4]/100,data[5]/10,data[6],data[7]] 
         empty_list.append(data1)
-        str_list = map(lambda x: str(x),data1)
-        str_xls = ",".join(list(str_list)) + "\n"
         a+=32
+    #二维数组转化成DataFrame
     df = pd.DataFrame(empty_list, columns = ["date","open","high","low","close","amount","vol","str7"])
 
     name = os.path.basename(f).split(".")[0]
-    full_path = xls_dir + os.sep + name + ".xlsx"
+    full_path = xls_dir + os.sep + name + ".xlsx"     #这里需要xlsx格式，而不是xls
     print(full_path)
+    #存入xlsx文件
     df.to_excel(full_path)
 
 
