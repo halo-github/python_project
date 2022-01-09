@@ -1,6 +1,7 @@
 #encoding = utf-8
 import os 
 
+
 def goto_dir(dir_name):
     if os.path.exists(dir_name) == False:
         os.makedirs(dir_name)

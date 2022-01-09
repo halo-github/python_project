@@ -42,5 +42,5 @@ if __name__ == "__main__":
     sz_list = list(map(lambda x: sz_dir + "\\" + x, os.listdir(sz_dir)))
     file_list = sh_list + sz_list
     #print(file_list)
-    thread_pool(file_list,dayfile_to_xlsx,workers = 45)
+    thread_pool(file_list,dayfile_to_xlsx,workers = 145)
 
