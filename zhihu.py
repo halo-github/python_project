@@ -9,7 +9,8 @@ from queue_lf import thread_pool
 
 #idx = input("1,xiaok, 2,天启\n")
 excel_dir = "D:\stork\\video_url"
-video_dir = "E:/xiaok" 
+video_dir_lst = ["d:\stork\\video\\tq","d:\stork\\video\\123","d:\stork\\video\\xiaok"] 
+
 url_lst = ["https://www.zhihu.com/api/v4/members/lis-10-69/zvideos?offset=0&limit=20&similar_aggregation=true&include=similar_zvideo%2Ccreation_relationship","https://www.zhihu.com/api/v4/members/123bo-yi-xue-yuan-24/zvideos?offset=0&limit=20&similar_aggregation=true&include=similar_zvideo%2Ccreation_relationship", "https://www.zhihu.com/api/v4/members/huo-huo-95-32/zvideos?offset=0&limit=20&similar_aggregation=true&include=similar_zvideo"  ] #天启
 
 author_list = ["天启大烁哥","123博弈财经","小K复盘"]
@@ -52,7 +53,7 @@ def url_to_xlsx(lst):
                 #print(ky)
                 df.sort_values("published_at",ascending = False).to_excel(writer,sheet_name = ky)
 
-def save_video(tp,a):
+def save_video(tp,v_dir):
     (published_at,author,title,formt,url) = tp
     name = title + "." + formt
     new_name =str(published_at) + "_" +name
@@ -60,7 +61,7 @@ def save_video(tp,a):
     if not os.path.exists(new_name):
         print(new_name,threading.current_thread())
         data = net_get(url,content,True)
-        save_data(new_name,data,video_dir) 
+        save_data(new_name,data,v_dir) 
     else:
         print(new_name + " exist")
 
@@ -85,5 +86,4 @@ if __name__ == "__main__":
             if author_list[idx] == l1[i][0][1]:
                 idx_selected = i
                 break
-        print(idx_selected)    
-        thread_pool(l1[idx_selected],save_video,workers = 8)       #多线程下载
+        thread_pool(l1[idx_selected],save_video,args = video_dir_lst[idx], workers = 8)       #多线程下载
