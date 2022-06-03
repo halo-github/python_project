@@ -2,6 +2,7 @@
 import os 
 
 
+
 def goto_dir(dir_name):
     if os.path.exists(dir_name) == False:
         os.makedirs(dir_name)
@@ -17,3 +18,7 @@ def save_data(name,data,d = os.curdir):
     with open(name,'wb') as f:
         f.write(data)
         print(p,"saved")
+
+##"https://www.1010dy.cc/play/62697-1-2/" --> "https://www.1010dy.cc"
+def domain_site(url):
+    return "/".join(url.split("/")[:3])
