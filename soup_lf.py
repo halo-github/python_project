@@ -5,18 +5,20 @@ from os_lf import domain_site,save_data
 from queue_lf import thread_pool
 #url = "https://www.hobiao.net/vodplay/911043-1-21/"
 url = "https://www.1010dy.vip/detail/62697/"
+head = domain_site(url)
+
+
 def doc(r):
     return r.text
 
 def site_list(sp,key_word):
     l1 =  list(i.get("href") for i in sp.find_all(href=re.compile(key_word)))
-    head = domain_site(url)
     all_url =  [head + i for i in l1 ]
     return all_url
 
 def get_aaaa(url,a):
     lst = net_group(url,r'var (player_aaaa={[^}].*})</script><script type="text/javascript" src="([^"]*)"></script><script type="text/javascript" src="([^"]*)"')
-    print(lst)
+    print(lst[0][0],head + lst[0][1], head + lst[0][2])
 
 
 if __name__ == "__main__":
