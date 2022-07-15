@@ -4,6 +4,9 @@ import random
 import requests
 from fake_useragent import UserAgent
 from os_lf import *
+from bs4 import BeautifulSoup as soup
+
+
 
 
 def proxy_list():
@@ -77,8 +80,14 @@ def net_download(url,name,save_path = os.curdir,use_proxy = True):
     else:
         print(name,"can not saved")
 
-def net_list_handler(lst,func,args = (),workers = 5,use_proxy = True):
-    return
+
+#BeautifulSoup
+def btfsoup(url):
+    text = net_content(url)
+    s = soup(text,features="lxml")
+    return s
+
+
 
 p_list = proxy_list() + proxy_list() + proxy_list()
 

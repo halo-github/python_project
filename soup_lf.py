@@ -1,24 +1,42 @@
 import re
 from bs4 import BeautifulSoup as soup
-from net_lf import net_content,net_group
+from net_lf import net_content,net_group,net_get
 from os_lf import domain_site,save_data
 from queue_lf import thread_pool
 #url = "https://www.hobiao.net/vodplay/911043-1-21/"
 url = "https://www.1010dy.vip/detail/62697/"
 head = domain_site(url)
 
-
+#find_all( name , attrs , recursive , text , **kwargs )
 def doc(r):
     return r.text
+
+def btfsoup(url):
+    text = net_content(url,doc)
+    s = soup(text,features="lxml")
+    return s
+
+def soup_tags(url,tag):
+    sp = btfsoup(url)
+    lst_tag = sp.findall(tag)
+
+
 
 def site_list(sp,key_word):
     l1 =  list(i.get("href") for i in sp.find_all(href=re.compile(key_word)))
     all_url =  [head + i for i in l1 ]
     return all_url
 
+def get_a(url):
+    l1 = net_get(url,doc)
+    lst = net_group(url,r'var (player_aaaa={[^}].*})</script><script type="text/javascript" src="([^"]*)"></script><script type="text/javascript" src="([^"]*)"')
+    print(l1)
+    print(lst)
+
 def get_aaaa(url,a):
     lst = net_group(url,r'var (player_aaaa={[^}].*})</script><script type="text/javascript" src="([^"]*)"></script><script type="text/javascript" src="([^"]*)"')
     print(lst[0][0],head + lst[0][1], head + lst[0][2])
+
 
 
 if __name__ == "__main__":
@@ -62,7 +80,8 @@ if __name__ == "__main__":
     #print(ll)
 #指定关键字再配合正则，通过get提取
     url_lst = site_list(s,'play')
-    thread_pool(url_lst,get_aaaa)
+    get_a(url)
+    #thread_pool(url_lst,get_aaaa)
     """print(url_lst)
     #print(s.find_all('script'))
     #return full_url_lst
