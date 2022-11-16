@@ -19,12 +19,12 @@ def proxy_list():
     url = "http://www.kuaidaili.com/ops/proxylist/"+str(ranPage)+"/"
     reg = r'"IP">([0-9]{2,3}.[0-9]{2,3}.[0-9]{2,3}.[0-9]{2,3}).*\n.*"PORT">([0-9]{,4}).*\n.*\n.*>(HTT.*)<.*\n'
     #reg = "([0-9]{2,3}.[0-9]{2,3}.[0-9]{2,3}.[0-9]{2,3})"
-    list = net_group(url,reg)
-    #print(txt)
+    lst = net_group(url,reg)
+    #print(lst)
     #list = re.findall(reg,txt)
     #print(list)
     proxies = []
-    for i in list:
+    for i in lst:
     	dic = {}
     	keys = str(i[2]).split(", ")
     	for key in keys:
@@ -40,19 +40,24 @@ def redirect_url(url):
 
 def net_get(url,f,use_proxy = True):
     try:
+        requests.packages.urllib3.disable_warnings()
         s = requests.Session()
         s.keep_alive = False
-        r_headers = {"user-agent": UserAgent().random}
+        ##fake_useragent报错：Maximum amount of retries reached，解决方法为在临时文件夹增加一个fake_useragent.json
+        
+        agent = UserAgent(path="C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\fake_useragent.json")
+        r_headers = {"user-agent":str(agent.random)}
+
         r_proxy = random.choice(p_list) if use_proxy == True else {}
         #print(r_proxy)
-        r = requests.get(url,headers = r_headers, proxies = r_proxy, timeout = 5,)
+        r = requests.get(url,headers = r_headers, proxies = r_proxy, timeout = 5,verify=False)
         #print(r_proxy)
     #可能出现HTTPConnectionPool，但不影响，可以pass
     #except HTTPConnectionPool    :
-    #    print("123")        
+    #    print("HTTPConnectionPool " + url)        
     except Exception as e:
             print("while handling " + url)
-            print(e)
+            print(e,url)
     else:
             if r.status_code == 200:
                 return f(r)
@@ -83,9 +88,15 @@ def net_download(url,name,save_path = os.curdir,use_proxy = True):
 
 #BeautifulSoup
 def btfsoup(url):
-    text = net_content(url)
-    s = soup(text,features="lxml")
-    return s
+    s = None
+    try:
+        text = net_content(url)
+        if text != None:
+            s = soup(text,features="lxml")  ##lxml  html.parser
+    except Exception as e:
+        print(e)
+    finally:
+        return s
 
 
 
@@ -93,6 +104,11 @@ p_list = proxy_list() + proxy_list() + proxy_list()
 
 
 if __name__ == "__main__":
-    p = p_list
-    print(p)
-    print("# encoding=gbk 才能写中文")
+    s = "https://q227p.cc/pw/html_data/3/2111/5673146.html"
+    sp = btfsoup(s)
+    print(type(sp))
+    
+    #p = p_list
+    print(sp)
+    #print("# encoding=gbk 才能写中文")
+    
