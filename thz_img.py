@@ -1,4 +1,4 @@
-#coding:utf-8
+#coding:gbk
 import re
 import requests
 import os
@@ -6,159 +6,150 @@ from net_lf import *
 from queue_lf import thread_pool
 import json
 import time
-import bs64
 
+from bs4 import BeautifulSoup as soup
 from os_lf import *
 import threading
-json_file = "thz.json"
-uu = json.load(open(json_file,'r'))
-url_thz = uu["thz"]
-url_24 = uu["u24"]
+json_file = "t24.json"
+data = json.load(open(json_file,encoding = "gbk"))
 
-suf_zipai = "forum-42-1.html"
-suf_wum = "forum.php?mod=forumdisplay&fid=39&filter=typeid&typeid=1"
-page_para_wum =  "<a href=\"([^\"].*)\" .*class=\"s xst\">([^<>].*)</a>"
-#page_para_taotu = "<a href=\"(thread.*html)\" .*class=\"s xst\">([^<>].*)</a>"  #资源列表的正则
-page_para_zipai = "<a href=\"(thread.*html)\"  onclick.*title=\"(.*)\" class=\"z"  #资源列表的正则
-#file="https://www.nsaimg.com/2020/05/26/9be4dd9950c2d.jpg
 
 file_para = "file=\"(http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+)"
 
 
 
-              # 'thread-2187500-1-1.html
-pic_dir = 'D:/xld/thz_pic/'                        #图片储存目录
 
 #获取重定向之后的主页
 def real_home_thz():
-    r = requests.get("https://user.seven301.xyz:8899/?u=" +url_thz +"/&p=/")
+    r = requests.get("https://user.seven301.xyz:8899/?u=" +data["thz"] +"/&p=/")
     home = r.url  #http://91thz.cc/forum.php
-    l1 = home.split("/")[:-1]
-    s1 = "/".join(l1) + "/"
-    #print(s1)
-    return s1
+    home = http_loc(home)
+    return home
 
 def real_home_24():
     url = ""
     if os.path.exists(json_file):
         with open(json_file,"rb") as f:
-            #print(json.load(f))
             d = json.load(f)
-            url = d["u24"]
+            url = data["u24"]
     else    :
         url = url_24
-    #print(requests.get(url).url)
     return requests.get(url).url
 
-home_thz = real_home_thz()
+home_thz = real_home_thz() + "/"
 home_24 = real_home_24()
 
 
 
 
-d_thz_zip = {
-    "from" : "thz",
-    "home" : home_thz,
-    "type" : 1,
-    "suf" : "forum-42-1.html",
-    "tag_name1" : "a",
-    "attr1" : {"onclick":"atarget(this)","class":False},#class不能有
-    "source1" : "href",
-    "tag_name2" : "img",
-    "attr2" : {"class" : "zoom"},
-    "source2" : "file",
-    "dir" : "D:\/xld\/thz_pic/zip"
-        }
-
-d_thz_wum = {
-    "from" : "thz",
-    "home" : home_thz,
-    "type" : 2,
-    "suf" : "forum.php?mod=forumdisplay&fid=39&filter=typeid&typeid=1",
-    "tag_name1" : "a",
-    "attr1" : {"class":"s xst"},
-    "source1" : "href",
-    "tag_name2" : "img",
-    "attr2" : {"class" : "zoom","atl":False},
-    "source2" : "file",
-    "dir" : "D:/xld/thz_pic/wum"
-
-        }
-
-d_24_zip = {
-    "from" : "24",
-    "home" : home_24,
-    "type" : 1,
-    "suf" : "thread.php?fid=15",
-    "tag_name1" : "a",
-    "source1": "href",
-    "attr1" : {"href":re.compile("html*"),"id":re.compile("a_aja*")},
-    "tag_name2" : "img",
-    "attr2" : {"border" : "0"},
-    "source2": "src",
-    "dir" : "D:\/xld\/24_pic/zip"
-        }
-
-d_24_hej = {
-    "from" : "24",
-    "type" : 2,
-    "home" : home_24,
-    "suf" : "thread.php?fid=3&type=2",
-    "tag_name1" : "a",
-    "source1": "href",
-    "attr1" : {"href":re.compile("html*"),"id":re.compile("a_aja*")},
-    "tag_name2" : "img",
-    "attr2" : {"border" : "0"},
-    "source2": "src",
-    "dir" : "D:\/xld\/24_pic\/hej"
-        }
-d = d_24_hej
 
 
+d = data["d_thz_hej"]
+
+
+
+
+#该函数已验证
 
 def get_page_list(dic):
-    resourse_url = dic["home"] + dic["suf"]
-    #print(resourse_url)
+    if dic["from"] == "24":
+        home = home_24
+    else:
+        home = home_thz
+    resourse_url = home + dic["suf"]
+    print(resourse_url)
     sp = btfsoup(resourse_url)
-    lst = sp.find_all(name = dic["tag_name1"], attrs = dic["attr1"])
-    lst1 = [(dic["home"] + i.get(dic["source1"]),dic['dir'] + "/" + re.sub(r'[/\?*<>: ]','_',i.string))  for i in lst ]
+    if sp == None: 
+        print("get_page_list:None")
+        return
+    ats = {}
+    if dic["attr_type"] == 1:
+        ats = dic["attr1"]
+    else: 
+        ats = eval(json.loads(json.dumps( dic["attr1"])))
+    #print(ats)
+    #由于json.decoder.JSONDecodeError: Expecting value: line 1 column 9 (char 8)，json字符串需要重新用dumps编码再loads解码才能转换成字典
+    #ats1 = eval(json.loads(json.dumps(ats)))  
+    #print(repr(ats1))
+    #print(type(ats1)) #<class 'dict'>
+    lst = sp.find_all(name = dic["tag_name1"], attrs = ats)
+    lst1 = [(home  + i.get(dic["source1"]),dic['dir'] + "/" + re.sub(r'[/\?*<>: ]','_',i.string))  for i in lst ]
     
-    #print(list(filter(None,lst1)))
-    #"https://q227p.cc/pw/"
-
+    #print(lst1)
     return list(filter(None,lst1))
 
 
 
-def get_pic_list1(tp,a):
+def check(tag):
+    r1 = d["tag3_lst"][1]
+    r2 = d["tag3_lst"][3]
+
+    if tag.name == d["tag3_lst"][0]:
+        return tag[r1]
+    else:
+        return tag[r2]
+
+def has_http(s):
+    return s.startswith("http")
+
+def pic_list(sp):
+    lst1 = []
+    lst11 = []
+    lst2 = []
+    lst22 = []
+    
+    if d["type"] == 1:
+        lst = sp.find_all(name = d["tag_name2"], attrs = d["attr2"])
+        lst1 = [i.get(d["source2"])  for i in lst]
+        lst11 = filter(None,lst1)
+    if d["type"] == 2:
+        tag = sp.find(name = d["tag_name2"], attrs = d["attr2"])
+        #print(tag)
+        lst1 = tag.find_all(d["tag3_lst"][0])
+        lst11 = map(lambda x: x[d["tag3_lst"][1]],lst1)
+        lst2 = tag.find_all([d["tag3_lst"][0],d["tag3_lst"][2]])
+        lst22 = map(check,lst2)
+    lst11 = list(filter(has_http,lst11))
+    lst22 = list(filter(has_http,lst22))
+    lst33 = [i if i.endswith("jpg") else  i+"-------------------------------------" for i in lst22]
+    #ss = set(lst11).issubset(set(lst22))
+    result = (lst11,lst33)
+    print(result)
+    return (result)
+
+def get_pic_list(tp,a):
     lst0 = []
     page_url = tp[0]
     save_dir = tp[1]
-    #if page_url.startswith("http"):
+    print(page_url)
+    #if page_url != "https://q227p.cc/pw/html_data/3/2302/6471599.html":return
     try: 
-        sp = btfsoup(page_url)     
-        lst = sp.find_all(name = d["tag_name2"], attrs = d["attr2"])
-        lst1 = [i.get(d["source2"])  for i in lst if i.get(d["source2"]).startswith("http")]
-        #print(lst1)
-        if len(lst1)>0:
-            return (save_dir,lst1)
+        sp = btfsoup(page_url)  
+        (lst11,lst22) = pic_list(sp)
+        if not os.path.exists(save_dir) :
+            os.makedirs(save_dir)
+        if len(lst22)>0:
+            os.chdir(save_dir)
+            with open("bt.txt","w") as f:
+                f.write(str(lst22))
+        return (save_dir,lst11)
     except Exception as e:
-        print(e)
+            print(e)
     finally:
-        pass
+            pass
+
 
 
 def down_pic_list(lst):
     for i in lst:
-        t1 = time.time()
+        #t1 = time.time()
         r = i.result()
         if r:
             save_dir = r[0]
             lst = r[1]
             #print(r)
             end = thread_pool(lst,down_pic,save_dir)
-        t2 = time.time()
-        print(t2-t1)
+        #t2 = time.time()
 
 
 
@@ -170,46 +161,30 @@ def down_pic(pic_url,save_dir):
 
 
 
-def get_pic_list(page_lst):
-    tp_lst = []
-    for item in page_lst:
-        page_url = item[0]
-        save_dir = item[1]
-        
-        if page_url.startswith("http"):
-            sp = btfsoup(page_url)
-            if sp != None:
-                #print(type(sp))
-            
-                lst = sp.find_all(name = d["tag_name2"], attrs = d["attr2"])
-                #lst1 = filter([],lst)
-                lst1 = [i.get(d["source2"])  for i in lst if i.get(d["source2"]).startswith("http")]
-                
-                #print(len(lst1),page_url,bs64.e(save_dir))
-                if len(lst1)>0:
-                    #goto_dir(save_dir)
-                    #thread_pool(lst1,download_pic,save_dir,workers = 10)
-                    #print(page_url)
-                    tp_lst.append((save_dir,lst1))
-    return tp_lst
 
 def update_url():
     d = {}
-    with open(u24,'r') as f:
+    with open(json_file,'r') as f:
         d  = json.load(f)
         d["u24"] = home_24
-    print(d)
-    with open(u24,'w') as f: 
+    #print(d)
+    with open(json_file,'w') as f: 
         json.dump(d,f,ensure_ascii=False)
 
         
 
 
 if __name__ == '__main__':
-    pg_lst = get_page_list(d)
-    #print(pg_lst)
-    #update_url()
-    pic_lst = thread_pool(pg_lst,get_pic_list1,workers = 10)
-    print(pic_lst)
-    down_pic_list(pic_lst)
+    #print(data)
 
+    
+    pg_lst = get_page_list(d)
+    print(pg_lst)
+    if pg_lst == None :
+        print("没有数据")
+        exit(1)
+    print(pg_lst)
+
+    update_url()
+    pic_lst = thread_pool(pg_lst,get_pic_list,workers = 10)
+    down_pic_list(pic_lst)

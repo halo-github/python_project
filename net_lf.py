@@ -5,8 +5,13 @@ import requests
 from fake_useragent import UserAgent
 from os_lf import *
 from bs4 import BeautifulSoup as soup
+from urllib.parse import urlparse
 
 
+
+
+def http_loc(url):
+    return "http://" + urlparse(url).netloc
 
 
 def proxy_list():
@@ -45,7 +50,8 @@ def net_get(url,f,use_proxy = True):
         s.keep_alive = False
         ##fake_useragent报错：Maximum amount of retries reached，解决方法为在临时文件夹增加一个fake_useragent.json
         
-        agent = UserAgent(path="C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\fake_useragent.json")
+        #agent = UserAgent(path="C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\fake_useragent.json")
+        agent = UserAgent(path="D:\\python_project\\fake_useragent.json")
         r_headers = {"user-agent":str(agent.random)}
 
         r_proxy = random.choice(p_list) if use_proxy == True else {}
@@ -62,6 +68,7 @@ def net_get(url,f,use_proxy = True):
             if r.status_code == 200:
                 return f(r)
     finally:
+        #print(r.status_code,url)
         pass
 
 

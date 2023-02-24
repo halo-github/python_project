@@ -11,7 +11,8 @@ from queue_lf import thread_pool
 excel_dir = "D:\stork\\video_url"
 video_dir_lst = ["d:\stork\\video\\tq","d:\stork\\video\\123","d:\stork\\video\\xiaok"] 
 
-url_lst = ["https://www.zhihu.com/api/v4/members/lis-10-69/zvideos?offset=0&limit=20&similar_aggregation=true&include=similar_zvideo%2Ccreation_relationship","https://www.zhihu.com/api/v4/members/123bo-yi-xue-yuan-24/zvideos?offset=0&limit=20&similar_aggregation=true&include=similar_zvideo%2Ccreation_relationship", "https://www.zhihu.com/api/v4/members/huo-huo-95-32/zvideos?offset=0&limit=20&similar_aggregation=true&include=similar_zvideo"  ] #天启
+url_lst = ["https://www.zhihu.com/api/v4/members/lis-10-69/zvideos?offset=0&limit=20similar_aggregation=true&include=similar_zvideo%2Ccreation_relationship%2Creaction_instruction","https://www.zhihu.com/api/v4/members/123bo-yi-xue-yuan-24/zvideos?offset=0&limit=20similar_aggregation=true&include=similar_zvideo%2Ccreation_relationship%2Creaction_instruction", "https://www.zhihu.com/api/v4/members/huo-huo-95-32/zvideos?offset=0&limit=20similar_aggregation=true&include=similar_zvideo%2Ccreation_relationship%2Creaction_instruction"  ] #天启
+#url_lst = ["https://www.zhihu.com/api/v4/members/lis-10-69/zvideos?offset=0&limit=20&similar_aggregation=true&include=similar_zvideo%2Ccreation_relationship","https://www.zhihu.com/api/v4/members/123bo-yi-xue-yuan-24/zvideos?offset=0&limit=20&similar_aggregation=true&include=similar_zvideo%2Ccreation_relationship", "https://www.zhihu.com/api/v4/members/huo-huo-95-32/zvideos?offset=0&limit=20&similar_aggregation=true&include=similar_zvideo"  ] #天启
 
 author_list = ["天启大烁哥","123博弈财经","小K复盘"]
 
@@ -20,6 +21,7 @@ func = lambda lst: [(d["published_at"],d["author"]["name"],d["title"],d["video"]
 def page(r):
     dic = r.json()
     l = dic["data"]
+    print(l)
     return (func(l),dic["paging"])
 
 #while循环获取全部视频地址
@@ -70,6 +72,7 @@ def save_video(tp,v_dir):
 
 
 if __name__ == "__main__":
+
     t1 = time.time()
     l = thread_pool(url_lst,video_list,args = False, workers = 10)
     l1 = [i.result() for i in l]
@@ -87,3 +90,4 @@ if __name__ == "__main__":
                 idx_selected = i
                 break
         thread_pool(l1[idx_selected],save_video,args = video_dir_lst[idx], workers = 8)       #多线程下载
+
